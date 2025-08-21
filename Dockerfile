@@ -60,9 +60,6 @@ RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url h
 # Install other required python packages that were previously in the large install list
 RUN pip install accelerate==1.6.0 numba scikit-image onnxruntime-gpu yacs
 
-# Install performance optimization packages
-RUN pip install flash_attn triton
-
 # Copy the custom model paths configuration BEFORE ComfyUI potentially reads defaults
 # Also, rename the example file first to avoid potential conflicts
 RUN mv extra_model_paths.yaml.example extra_model_paths.yaml.example.bak || true

@@ -61,8 +61,6 @@
         "spandrel": "",
         "soundfile": "",
         "pydantic~=2.0": "",
-        "pydantic-settings~=2.0": "",
-        "flash_attn": "",
-        "triton": ""
+        "pydantic-settings~=2.0": ""
     }
 }
