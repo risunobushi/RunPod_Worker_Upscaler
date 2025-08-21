@@ -10,7 +10,7 @@
   },
   "2": {
     "inputs": {
-      "model": "seedvr2_ema_3b_fp8_e4m3fn.safetensors",
+      "model": "seedvr2_ema_7b_fp16.safetensors",
       "seed": 100,
       "new_resolution": 1920,
       "batch_size": 1,
