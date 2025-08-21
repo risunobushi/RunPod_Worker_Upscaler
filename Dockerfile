@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.12 \
     python3.12-dev \
     python3.12-venv \
-    python3.12-distutils \
     git \
     wget \
     libgl1 \
@@ -32,6 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN wget https://bootstrap.pypa.io/get-pip.py \
     && python3.12 get-pip.py \
     && rm get-pip.py \
+    # Install setuptools (replaces distutils in Python 3.12+)
+    && pip install setuptools \
     # Link pip now that it's installed
     && ln -sf /usr/local/bin/pip /usr/bin/pip
 
