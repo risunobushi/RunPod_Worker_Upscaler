@@ -1,5 +1,5 @@
 # Stage 1: Base image with common dependencies
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
+FROM nvidia/cuda:12.6.2-cudnn9-runtime-ubuntu22.04 as base
 
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,27 +10,30 @@ ENV PYTHONUNBUFFERED=1
 # Speed up some cmake builds
 ENV CMAKE_BUILD_PARALLEL_LEVEL=8
 
-# Install Python, git and other base tools
+# Add deadsnakes PPA for Python 3.12 and install Python, git and other base tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3.10-dev \
-    python3.10-venv \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    python3.12 \
+    python3.12-dev \
+    python3.12-venv \
+    python3.12-distutils \
     git \
     wget \
     libgl1 \
     libglib2.0-0 \
-    # Link python3.10 to python immediately
-    && ln -sf /usr/bin/python3.10 /usr/bin/python \
+    # Link python3.12 to python immediately
+    && ln -sf /usr/bin/python3.12 /usr/bin/python \
     # Clean lists for this layer
     && rm -rf /var/lib/apt/lists/*
 
-# Install pip separately now that python points to 3.10, then set pip links
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip \
+# Install pip for Python 3.12 using get-pip.py method
+RUN wget https://bootstrap.pypa.io/get-pip.py \
+    && python3.12 get-pip.py \
+    && rm get-pip.py \
     # Link pip now that it's installed
-    && ln -sf /usr/bin/pip3 /usr/bin/pip \
-    # Clean lists for this layer
-    && rm -rf /var/lib/apt/lists/*
+    && ln -sf /usr/local/bin/pip /usr/bin/pip
 
 # Create and set permissions for ControlNet Aux caching
 RUN mkdir -p /tmp/ckpts && chmod -R 777 /tmp/ckpts
@@ -42,7 +45,7 @@ RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 RUN pip install comfy-cli
 
 # Install ComfyUI
-RUN /usr/bin/yes | comfy --workspace /comfyui install --cuda-version 11.8 --nvidia --version 0.3.26
+RUN /usr/bin/yes | comfy --workspace /comfyui install --cuda-version 12.6 --nvidia --version 0.3.26
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
@@ -50,8 +53,14 @@ WORKDIR /comfyui
 # Install runpod
 RUN pip install runpod requests
 
+# Install PyTorch with CUDA 12.6 support
+RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu126
+
 # Install other required python packages that were previously in the large install list
 RUN pip install accelerate==1.6.0 numba scikit-image onnxruntime-gpu yacs
+
+# Install performance optimization packages
+RUN pip install flash_attn triton
 
 # Copy the custom model paths configuration BEFORE ComfyUI potentially reads defaults
 # Also, rename the example file first to avoid potential conflicts
