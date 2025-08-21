@@ -9,7 +9,7 @@ runpod_worker_comfy:
   # clip: models/clip/
   # unet: models/diffusion_models/ # Use the actual subfolder name for unet models
   # upscale_models: models/upscale_models/ # Add for upscaler models
-  SEEDVR2: models/SEEDVR2 # this repo is a fork of my runpod-worker-comfyui repo dedicated to SEEDVR2 only, so it's the only extra path I load here
+  SEEDVR2: models/SEEDVR2/ # this repo is a fork of my runpod-worker-comfyui repo dedicated to SEEDVR2 only, so it's the only extra path I load here
 
   # Add other standard types if their subfolders exist under /runpod-volume/ComfyUI/models/
   # checkpoints: models/checkpoints/
